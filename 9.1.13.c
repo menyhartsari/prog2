@@ -28,7 +28,7 @@ typedef struct{
        	return matrix;
  	  }
  	  
- 	  MAT *mat_create_by_file(char *filename){
+ 	MAT *mat_create_by_file(char *filename){
  	  	int f;
         MAT *mat;
         unsigned int c,r,col, row;                      
@@ -69,17 +69,23 @@ typedef struct{
         
         printf("Matrix naèit.\n");
         return mat;
-    
     }
+    
  	char mat_save(MAT *mat, char *filename){
-     	int f;
+     	int f,i,j;
      	char kod[2]={'M','1'};
     	if( (f = open(filename, O_BINARY | O_WRONLY)) < 0 ){
 			fprintf(stderr, "File access problem.\n");
 			exit(1);
 		}
 		write(f,kod,2*sizeof(char));
-		write(f, &mat, (MAT*)malloc(sizeof(MAT)));
+		write(f, &mat->rows, sizeof(unsigned int));
+		write(f, &mat->rows, sizeof(unsigned int));
+		for (i=0; i<mat->rows;i++){
+			for (j=0;j<mat->cols;j++){
+				write(f, &ELEM(mat,i,j), sizeof(float));
+			}
+		}
     	if(close(f) == EOF){
         printf("Unable to close file\n");
         return -1;
