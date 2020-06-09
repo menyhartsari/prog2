@@ -27,7 +27,7 @@ typedef struct{
        	printf("Matrix inic. rows: %d cols: %d 			%f\n", matrix->rows, matrix->cols, ELEM(matrix,0,0));
        	return matrix;
  	  }
- 	  /*
+ 	
  	MAT *mat_create_by_file(char *filename){
  	  	int f;
         MAT *mat;
@@ -52,7 +52,7 @@ typedef struct{
             	ELEM(mat,i,j) = u;
       	    	printf("i: %d j: %d val: %f\n",i,j,ELEM(mat,i,j));                	 
         	} 
-    	} /*
+    	} 
     	for ( i = 0; i < mat->rows; i++) {
             for ( j = 0; j < mat->cols; j++) {
                 printf(" %f", ELEM(mat,i,j));
@@ -67,7 +67,7 @@ typedef struct{
         
         printf("Matrix naèit.\n");
         return mat;
-    }*/
+    }
     
  	char mat_save(MAT *mat, char *filename){
      	int f,i,j;
@@ -127,38 +127,47 @@ typedef struct{
     }
     
     unsigned int mat_rank(MAT *mat){
-		int rank, col, row, i, bin, justnull;
-		double x;
-		rank = mat->cols;
-		for (row = 0; row < rank; row++){ 
-        	if (ELEM(mat,row,col) != 0){ 
-           		for (col = 0; col < mat->rows; col++){ 
+        int rank, col, row, i, bin, justnull;
+        float x;
+        rank = mat->cols; 
+        for (row = 0; row < rank; row++){    
+        	if (ELEM(mat,row,row) != 0){           
+    			for (col = 0; col < mat->rows; col++){ 
                		if (col != row){ 
-                 		x = (double)(ELEM(mat,row,col) / ELEM(mat,row,row)); 
-                 		for (i = 0; i < rank; i++) 
-				   			ELEM(mat,col,i) = ELEM(mat,col,i) - x * ELEM(mat,row,i); 
+                 		x = (double)(ELEM(mat,row,col) / ELEM(mat,row,row));
+                		for (i = 0; i < rank; i++) 
+                   			ELEM(mat,i,col) -= x * ELEM(mat,row,i); 
               		} 
            		} 
-   			}
+        	} 
 			else{
-        		for (i = row + 1; i < mat->rows;  i++){ 
-                	if (ELEM(mat, i, row) == 0){ 
-                    	for (i = 0; i < col; i++){ 
-       						bin = ELEM(mat,row,i); 
-     						ELEM(mat,row,i) = ELEM(mat,row+1,i); 
-     						ELEM(mat,row+1,i) = bin; 
-    					} 
-                    	break ;
-					} 
+            	justnull=0;
+        		for (i = row + 1; i < mat->rows;  i++){         
+					if (ELEM(mat, i, row) == 0){
+                 		for (i = 0; i < col; i++){
+                        	bin = ELEM(mat,row,i); 
+                       		ELEM(mat,row,i) = ELEM(mat,row+1,i); 
+                        	ELEM(mat,row+1,i) = bin; 
+                    	} 
+                    	justnull=1;
+                    	break; 
+                	} 
+            	} 
+        		if (justnull=0){  
+                	rank--; 
+                	for (i = 0; i < mat->rows; i ++) 
+                    	ELEM(mat,i,row) = ELEM(mat,i,rank);
             	} 
         	}
-			row--; 
-		}
-		return rank;
-	}
+        	row--; 
+        }
+        return rank;
+    }
 	
  	int main(){
  	  	mat_create_with_type(2,2);
- 	// 	MAT *A = mat_create_by_file("matrix.txt");
+ 	 	MAT *A = mat_create_by_file("matrix.txt");
+ 	 	mat_rank(A);
+ 	 	printf("Hodnost matice je : %d", mat_rank(A)); 
  	  	return 0;
 	}
