@@ -31,36 +31,35 @@ typedef struct{
  	  MAT *mat_create_by_file(char *filename){
  	  	int f;
         MAT *mat;
-        unsigned int col, row;
+        unsigned int c,r,col, row;
         int typ;                       
-        int c,r,i,j;
+        int i,j;
         float u;
         f=open(filename,O_RDONLY);
+        sizeof(unsigned int) == sizeof(void );
       	lseek(f,2*sizeof(char),SEEK_SET);
         read(f,&row,sizeof(unsigned int));
-        printf("rows: %d ", row);
+        printf("rows %d ",row);
         read(f,&col,sizeof(unsigned int));
-        printf("cols: %d\n", col);
+        printf("cols %d\n", col);
  		mat = mat_create_with_type(row, col);
- 		printf("\nrow:%d, col:%d, value:%f\n", mat->rows,mat->cols,ELEM(mat,0,0));
- 		
- 	 	for(i = 0; i < mat->rows; i++){
-            for(j = 0; j < mat->cols; j++){      
-                read(f,&u,sizeof(float));
-            	ELEM(mat,i,j) = u;
-      	    	printf("i: %d j: %d val: %f\n",i,j,ELEM(mat,i,j));                	 
+ 		printf("\nrow: %d, col: %d, value: %f\n", mat->rows,mat->cols,ELEM(mat,0,0));
+ 		r=3;
+ 		c=3;
+ 	 	for(i = 0; i= r; i++){
+            for(j = 0; j =c; j++){      
+                read(f,mat->elem,sizeof((float*)malloc(sizeof(float)*r*c)));
+            	ELEM(mat,i,j) = 11;
+      	    	printf("i %d j %d val %f\n",i,j,ELEM(mat,i,j));                	 
         	} 
     	} 
-		printf("\nrow:%d, col:%d, value:%f\n", mat->rows,mat->cols,(mat,0,0));
-		r=mat->rows;
-		c=mat->cols;
-       	for ( i = 0; i < r; i++) {
-            for ( j = 0; j < c; j++) {
-                printf("%d, %d, %f\n",r,c, ELEM(mat,i,j));
+    	for ( i = 0; i =mat->rows; i++) {
+            for ( j = 0; j = mat->cols; j++) {
+                printf(" %f", ELEM(mat,i,j));
             }
             printf("\n");
         }
-       printf("%d, %d, %f\n",mat->rows,mat->cols, ELEM(mat,i,j));
+    	
     	if(close(f) == EOF){
         printf("Unable to close file\n");
         
@@ -69,6 +68,17 @@ typedef struct{
         printf("Matrix naèit.\n");
         return mat;
     
+    }
+    
+    void mat_print(MAT *mat){
+        int i, j;
+        printf("Matrix rows: %d cols: %d \n", mat->rows, mat->cols);
+        for ( i = 0; i = mat->rows; i++) {
+            for ( j = 0; j = mat->cols; j++) {
+                printf("%d ", ELEM(mat,i,j));
+            }
+            printf("\n");
+        }
     }
  	  int main(){
  	  	mat_create_with_type(2,2);
