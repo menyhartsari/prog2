@@ -31,7 +31,7 @@ typedef struct{
  	MAT *mat_create_by_file(char *filename){
  	  	int f;
         MAT *mat;
-        unsigned int c,r,col, row;                      
+        unsigned int col, row;                      
         int i,j;
         float u;
         if( (f = open(filename, O_BINARY | O_RDONLY)) < 0 )
@@ -46,21 +46,19 @@ typedef struct{
         printf("cols: %d\n", col);
  		mat = mat_create_with_type(row, col);
  		printf("\nrow:%d, col:%d, value:%f\n", mat->rows,mat->cols,ELEM(mat,0,0));
- 		r=mat->rows;
- 		c=mat->cols;
- 	 	for(i = 0; i < r; i++){
-            for(j = 0; j < c; j++){      
+ 	 	for(i = 0; i < row; i++){
+            for(j = 0; j < col; j++){      
                 read(f,&u,sizeof(float));
             	ELEM(mat,i,j) = u;
       	    	printf("i: %d j: %d val: %f\n",i,j,ELEM(mat,i,j));                	 
         	} 
-    	} 
+    	} /*
     	for ( i = 0; i < mat->rows; i++) {
             for ( j = 0; j < mat->cols; j++) {
                 printf(" %f", ELEM(mat,i,j));
             }
             printf("\n");
-        }
+        }*/
     	
     	if(close(f) == EOF){
         printf("Unable to close file\n");
@@ -129,6 +127,27 @@ typedef struct{
             printf("\n");
         }
     }
+    
+    unsigned int mat_rank(MAT *mat){
+		int rank, col, row, i, bin, justnull;
+		double x;
+		rank = mat->cols;
+		
+		for (row = 0; row < rank; row++) {         
+        	if (ELEM(mat,row,col) != 0){ 
+           		for (col = 0; col < mat->rows; col++){ 
+               		if (col != row){ 
+                 		x = (double)(ELEM(mat,row,col) / ELEM(mat,row,row)); 
+                 		for (i = 0; i < rank; i++) 
+				   			ELEM(mat,col,i) = ELEM(mat,col,i) - x * ELEM(mat,row,i); 
+              		} 
+           		} 
+        	} 
+		row--; 
+		}
+		return rank;
+	}
+	
  	  int main(){
  	  	mat_create_with_type(2,2);
  	  	MAT *A = mat_create_by_file("matrix.txt");
