@@ -27,7 +27,7 @@ typedef struct{
        	printf("Matrix inic. rows: %d cols: %d 			%f\n", matrix->rows, matrix->cols, ELEM(matrix,0,0));
        	return matrix;
  	  }
- 	  
+ 	  /*
  	MAT *mat_create_by_file(char *filename){
  	  	int f;
         MAT *mat;
@@ -58,7 +58,7 @@ typedef struct{
                 printf(" %f", ELEM(mat,i,j));
             }
             printf("\n");
-        }*/
+        }
     	
     	if(close(f) == EOF){
         printf("Unable to close file\n");
@@ -67,7 +67,7 @@ typedef struct{
         
         printf("Matrix naèit.\n");
         return mat;
-    }
+    }*/
     
  	char mat_save(MAT *mat, char *filename){
      	int f,i,j;
@@ -80,9 +80,8 @@ typedef struct{
 		write(f, &mat->rows, sizeof(unsigned int));
 		write(f, &mat->rows, sizeof(unsigned int));
 		for (i=0; i<mat->rows;i++){
-			for (j=0;j<mat->cols;j++){
+			for (j=0;j<mat->cols;j++)
 				write(f, &ELEM(mat,i,j), sizeof(float));
-			}
 		}
     	if(close(f) == EOF){
         printf("Unable to close file\n");
@@ -96,13 +95,12 @@ typedef struct{
     
     void mat_unit(MAT *mat){
         int i, j;
-        for ( i = 0; i < mat->rows; i++) {
-            for ( j = 0; j < mat->cols; j++) {
-                if (i==j) {
+        for ( i = 0; i < mat->rows; i++){
+            for ( j = 0; j < mat->cols; j++){
+                if (i==j)
                     ELEM(mat,i,j)=1; 
-                } else {
+				else
                     ELEM(mat,i,j)=0;
-                }
             }
         }
     }
@@ -110,8 +108,8 @@ typedef struct{
     void mat_random(MAT *mat){
         int i, j;
         srand((unsigned int) time(NULL));
-        for ( i = 0; i < mat->rows; i++) {
-            for ( j = 0; j < mat->cols; j++) {
+        for ( i = 0; i < mat->rows; i++){
+            for ( j = 0; j < mat->cols; j++){
                 ELEM(mat,i,j)=-1+rand()%3;
             }
         }
@@ -132,8 +130,7 @@ typedef struct{
 		int rank, col, row, i, bin, justnull;
 		double x;
 		rank = mat->cols;
-		
-		for (row = 0; row < rank; row++) {         
+		for (row = 0; row < rank; row++){ 
         	if (ELEM(mat,row,col) != 0){ 
            		for (col = 0; col < mat->rows; col++){ 
                		if (col != row){ 
@@ -142,14 +139,26 @@ typedef struct{
 				   			ELEM(mat,col,i) = ELEM(mat,col,i) - x * ELEM(mat,row,i); 
               		} 
            		} 
-        	} 
-		row--; 
+   			}
+			else{
+        		for (i = row + 1; i < mat->rows;  i++){ 
+                	if (ELEM(mat, i, row) == 0){ 
+                    	for (i = 0; i < col; i++){ 
+       						bin = ELEM(mat,row,i); 
+     						ELEM(mat,row,i) = ELEM(mat,row+1,i); 
+     						ELEM(mat,row+1,i) = bin; 
+    					} 
+                    	break ;
+					} 
+            	} 
+        	}
+			row--; 
 		}
 		return rank;
 	}
 	
- 	  int main(){
+ 	int main(){
  	  	mat_create_with_type(2,2);
- 	  	MAT *A = mat_create_by_file("matrix.txt");
+ 	// 	MAT *A = mat_create_by_file("matrix.txt");
  	  	return 0;
-	   }
+	}
