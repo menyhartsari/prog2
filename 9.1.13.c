@@ -28,6 +28,7 @@ void mat_destroy(MAT *mat){
 MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
     MAT m;
     MAT *matrix;
+
     m.rows = rows;
     m.cols = cols;
     m.elem = (float*)malloc(sizeof(float)*rows*cols);
@@ -46,6 +47,7 @@ MAT *mat_create_by_file(char *filename){
     unsigned int col, row;                      
     int i,j;
     float u;
+
     if( (f = open(filename, O_BINARY | O_RDONLY)) < 0 ){
 		fprintf(stderr, "File access problem.\n");
 		exit(1);
@@ -86,6 +88,7 @@ MAT *mat_create_by_file(char *filename){
 char mat_save(MAT *mat, char *filename){
  	int f,i,j;
  	char kod[2]={'M','1'};
+
 	if( (f = open(filename, O_BINARY | O_WRONLY | O_CREAT)) < 0 ){
 		fprintf(stderr, "File access problem.\n");
 		exit(1);
@@ -105,6 +108,7 @@ char mat_save(MAT *mat, char *filename){
 
 void mat_unit(MAT *mat){
     int i, j;
+
     for (i = 0; i < mat->rows; i++){
         for (j = 0; j < mat->cols; j++){
             if (i==j)
@@ -117,6 +121,7 @@ void mat_unit(MAT *mat){
 
 void mat_random(MAT *mat){
     int i, j;
+
     srand((unsigned int) time(NULL));
     for (i = 0; i < mat->rows; i++){
         for (j = 0; j < mat->cols; j++){
@@ -127,6 +132,7 @@ void mat_random(MAT *mat){
 
 void mat_print(MAT *mat){
     int i, j;
+
     printf("Matrix rows: %d cols: %d \n", mat->rows, mat->cols);
     for (i = 0; i < mat->rows; i++) {
         for (j = 0; j < mat->cols; j++) {
@@ -139,6 +145,7 @@ void mat_print(MAT *mat){
 unsigned int mat_rank(MAT *mat){
     int rank, col, row, i, bin, justnull;
     float x;
+
     rank = mat->cols; 
     for (row = 0; row < rank; row++){    
     	if (ELEM(mat,row,row) != 0){           
@@ -176,6 +183,7 @@ unsigned int mat_rank(MAT *mat){
 
 int main(){
  	MAT *A = mat_create_by_file("matrix.txt");
+
  	mat_rank(A);
  	printf("Hodnost matice je : %d", mat_rank(A)); 
   	return 0;
