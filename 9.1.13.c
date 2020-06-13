@@ -47,12 +47,17 @@ MAT *mat_create_by_file(char *filename){
     unsigned int col, row;                      
     int i,j;
     float u;
-
+    char kod[2];
+    
     if( (f = open(filename, O_BINARY | O_RDONLY)) < 0 ){
 		fprintf(stderr, "File access problem.\n");
 		exit(1);
 	}
-  	lseek(f,2*sizeof(char),SEEK_SET);
+	read(f,&kod,2*sizeof(char));
+	if( (kod[0]!='M')||(kod[1]!='1')){
+		close(f);
+		exit(1);
+	}
     read(f,&row,sizeof(unsigned int));
     printf("rows: %d ", row);
     read(f,&col,sizeof(unsigned int));
