@@ -28,7 +28,7 @@ void mat_destroy(MAT *mat){
 MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
     MAT m;
     MAT *matrix;
-
+	
     m.rows = rows;
     m.cols = cols;
     m.elem = (float*)malloc(sizeof(float)*rows*cols);
@@ -37,12 +37,11 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
 		mat_destroy(matrix);
 		return NULL;
 	}
-   	printf("Matrix inic. rows: %d cols: %d 			%f\n", matrix->rows, matrix->cols, ELEM(matrix,0,0));
-   	return matrix;
-  }
+	return matrix;
+}
 
 MAT *mat_create_by_file(char *filename){
-  	int f;
+	int f;
     MAT *mat;
     unsigned int col, row;                      
     int i,j;
@@ -50,43 +49,36 @@ MAT *mat_create_by_file(char *filename){
     char kod[2];
     
     if( (f = open(filename, O_BINARY | O_RDONLY)) < 0 ){
-		fprintf(stderr, "File access problem.\n");
-		exit(1);
+		return NULL;
 	}
 	read(f,&kod,2*sizeof(char));
 	if( (kod[0]!='M')||(kod[1]!='1')){
 		close(f);
-		exit(1);
+		return NULL;
 	}
     read(f,&row,sizeof(unsigned int));
-    printf("rows: %d ", row);
+    if( row < 0 ){
+    	close(f);
+    	return NULL;
+	}
     read(f,&col,sizeof(unsigned int));
-    printf("cols: %d\n", col);
+    if( col < 0 ){
+    	close(f);
+    	return NULL;
+	}
 	mat = mat_create_with_type(row, col);
-	printf("\nrow:%d, col:%d, value:%f\n", mat->rows,mat->cols,ELEM(mat,0,0));
- 	for(i = 0; i < row; i++){
-        for(j = 0; j < col; j++){      
+	if (mat==0){
+    	mat_destroy(mat);
+    	close(f);
+		return NULL;		
+	}
+	for(i = 0; i < mat->rows; i++){
+        for(j = 0; j < mat->cols; j++){      
             read(f,&u,sizeof(float));
-        	ELEM(mat,i,j) = u;
-  	    	printf("i: %d j: %d val: %f\n",i,j,ELEM(mat,i,j));                	 
+        	ELEM(mat,i,j) = u;                	 
     	} 
 	} 
-	for (i = 0; i < mat->rows; i++) {
-        for (j = 0; j < mat->cols; j++){
-            printf(" %f", ELEM(mat,i,j));
-        }
-        printf("\n");
-    }				
-    if (mat==0){
-    	mat_destroy(mat);
-    	if(close(f) == EOF)
-    		printf("Unable to close file\n");
-    	return 0;
-	}
-	if(close(f) == EOF){
-    	printf("Unable to close file\n");   
-	}
-    printf("Matrix nacit.\n");
+	close(f);
     return mat;
 }
 
@@ -94,9 +86,12 @@ char mat_save(MAT *mat, char *filename){
  	int f,i,j;
  	char kod[2]={'M','1'};
 
-	if( (f = open(filename, O_BINARY | O_WRONLY | O_CREAT)) < 0 ){
-		fprintf(stderr, "File access problem.\n");
-		exit(1);
+	if( (f = open(filename, O_BINARY | O_WRONLY | O_CREAT)) < 0 )
+		return -1;
+	if (mat==0){
+    	mat_destroy(mat);
+    	close(f);
+		return -1;		
 	}
 	write(f,kod,2*sizeof(char));
 	write(f, &mat->rows, sizeof(unsigned int));
@@ -105,10 +100,8 @@ char mat_save(MAT *mat, char *filename){
 		for (j = 0; j < mat->cols; j++)
 			write(f, &ELEM(mat,i,j), sizeof(float));
 	}
-	if(close(f) == EOF){
-    printf("Unable to close file\n");
-    return -1;
-	}
+	close(f);
+	return 0;
 }
 
 void mat_unit(MAT *mat){
@@ -155,8 +148,8 @@ unsigned int mat_rank(MAT *mat){
     for (row = 0; row < rank; row++){    
     	if (ELEM(mat,row,row) != 0){           
 			for (col = 0; col < mat->rows; col++){ 
-           		if (col != row){ 
-             		x = (double)(ELEM(mat,row,col) / ELEM(mat,row,row));
+           		if (col != row){
+				   	x = (ELEM(mat,row,col) / ELEM(mat,row,row));
             		for (i = 0; i < rank; i++) 
                			ELEM(mat,i,col) -= x * ELEM(mat,row,i); 
           		} 
@@ -188,7 +181,6 @@ unsigned int mat_rank(MAT *mat){
 
 int main(){
  	MAT *A = mat_create_by_file("matrix.txt");
-
  	mat_rank(A);
  	printf("Hodnost matice je : %d", mat_rank(A)); 
   	return 0;
