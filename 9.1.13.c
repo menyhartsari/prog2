@@ -140,29 +140,32 @@ void mat_print(MAT *mat){
 }
 
 unsigned int mat_rank(MAT *mat){
-    int rank, col, row, i, bin, justnull;
+    int rank, col, row, i, y, bin, justnull;
     float x;
 
-    rank = mat->cols; 
-    for (row = 0; row < rank; row++){    
+	mat_print(mat);
+    rank = mat->cols;
+	for (row = 0; row < rank; row++){    
     	if (ELEM(mat,row,row) != 0){           
 			for (col = 0; col < mat->rows; col++){ 
            		if (col != row){
-				   	x = (ELEM(mat,row,col) / ELEM(mat,row,row));
+				   	x = (ELEM(mat,col,row) / ELEM(mat,row,row));
             		for (i = 0; i < rank; i++) 
-               			ELEM(mat,i,col) -= x * ELEM(mat,row,i); 
+               			ELEM(mat,col,i) -= x * ELEM(mat,row,i); 
           		} 
        		} 
-    	} 
+    	}
 		else{
         	justnull=0;
     		for (i = row + 1; i < mat->rows;  i++){         
 				if (ELEM(mat, i, row) == 0){
-             		for (i = 0; i < mat->cols; i++){
+					int y=i;
+             		for (i = 0; i < rank; i++){
                     	bin = ELEM(mat,row,i); 
-                   		ELEM(mat,row,i) = ELEM(mat,row+1,i); 
-                    	ELEM(mat,row+1,i) = bin; 
-                	} 
+                   		ELEM(mat,row,i) = ELEM(mat,y,i); 
+                    	ELEM(mat,y,i) = bin; 
+                	}
+                	i=y;
                 	justnull=1;
                 	break; 
             	} 
@@ -172,8 +175,9 @@ unsigned int mat_rank(MAT *mat){
             	for (i = 0; i < mat->rows; i ++) 
                 	ELEM(mat,i,row) = ELEM(mat,i,rank);
         	} 
+        	row--;
     	} 
-    	row--; 
+    	mat_print(mat);
     }
     return rank;
 }
@@ -181,7 +185,6 @@ unsigned int mat_rank(MAT *mat){
 int main(){
  	MAT *A = mat_create_by_file("matrix.txt");
 
- 	mat_rank(A);
  	printf("Hodnost matice je : %d", mat_rank(A)); 
   	return 0;
 }
