@@ -26,18 +26,17 @@ void mat_destroy(MAT *mat){
 }
 
 MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
-    MAT m;
-    MAT *matrix;
+    MAT *m;
 	
-    m.rows = rows;
-    m.cols = cols;
-    m.elem = (float*)malloc(sizeof(float)*rows*cols);
-	matrix = &m;
-	if (matrix==0){
-		mat_destroy(matrix);
+	m=(MAT*)malloc(sizeof(MAT));
+    m->rows = rows;
+    m->cols = cols;
+    m->elem = (float*)malloc(sizeof(float)*rows*cols);
+	if (m==0){
+		mat_destroy(m);
 		return NULL;
 	}
-	return matrix;
+	return m;
 }
 
 MAT *mat_create_by_file(char *filename){
@@ -134,7 +133,7 @@ void mat_print(MAT *mat){
     printf("Matrix rows: %d cols: %d \n", mat->rows, mat->cols);
     for (i = 0; i < mat->rows; i++) {
         for (j = 0; j < mat->cols; j++) {
-            printf(" %f", ELEM(mat,i,j));
+            printf(" %f	", ELEM(mat,i,j));
         }
         printf("\n");
     }
@@ -159,7 +158,7 @@ unsigned int mat_rank(MAT *mat){
         	justnull=0;
     		for (i = row + 1; i < mat->rows;  i++){         
 				if (ELEM(mat, i, row) == 0){
-             		for (i = 0; i < col; i++){
+             		for (i = 0; i < mat->cols; i++){
                     	bin = ELEM(mat,row,i); 
                    		ELEM(mat,row,i) = ELEM(mat,row+1,i); 
                     	ELEM(mat,row+1,i) = bin; 
@@ -173,7 +172,7 @@ unsigned int mat_rank(MAT *mat){
             	for (i = 0; i < mat->rows; i ++) 
                 	ELEM(mat,i,row) = ELEM(mat,i,rank);
         	} 
-    	}
+    	} 
     	row--; 
     }
     return rank;
@@ -181,6 +180,7 @@ unsigned int mat_rank(MAT *mat){
 
 int main(){
  	MAT *A = mat_create_by_file("matrix.txt");
+
  	mat_rank(A);
  	printf("Hodnost matice je : %d", mat_rank(A)); 
   	return 0;
