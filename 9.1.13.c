@@ -191,7 +191,7 @@ unsigned int mat_rank(MAT *mat){
 }
 
 int main(){
- 	MAT *A = mat_create_by_file("matrix11.txt");
+ 	MAT *A = mat_create_by_file("matrix.txt");
     MAT *B = mat_create_with_type(3,3);
     unsigned int rank;
 
@@ -208,8 +208,8 @@ int main(){
     rank = mat_rank(A);
  	printf("Hodnost matice A je : %d", rank);
 
-//    rank = mat_rank(B);
- //	printf("Hodnost matice B je : %d", rank);
+    rank = mat_rank(B);
+ 	printf("Hodnost matice B je : %d", rank);
 
   	return 0;
 }
