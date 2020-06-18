@@ -22,6 +22,7 @@ typedef struct{
 #define ELEM(M,r,c) (M->elem[(M->cols)*r+c])
 
 void mat_destroy(MAT *mat){
+	free(mat->elem);
     free(mat);
 }
 
@@ -29,10 +30,14 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
     MAT *m;
 	
 	m=(MAT*)malloc(sizeof(MAT));
+	if (m==0){
+		mat_destroy(m);
+		return NULL;
+	}
     m->rows = rows;
     m->cols = cols;
     m->elem = (float*)malloc(sizeof(float)*rows*cols);
-	if (m==0){
+	if (m->elem==0){			
 		mat_destroy(m);
 		return NULL;
 	}
@@ -40,7 +45,7 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
 }
 
 MAT *mat_create_by_file(char *filename){
-	int f;
+	int f, kus=0, s;
     MAT *mat;
     unsigned int col, row;                      
     int i,j;
@@ -67,16 +72,20 @@ MAT *mat_create_by_file(char *filename){
 	}
 	mat = mat_create_with_type(row, col);
 	if (mat==0){
-    	mat_destroy(mat);
     	close(f);
 		return NULL;		
 	}
-	for(i = 0; i < mat->rows; i++){
-        for(j = 0; j < mat->cols; j++){      
-            read(f,&u,sizeof(float));
-        	ELEM(mat,i,j) = u;                	 
-    	} 
-	} 
+	for (i = 0; i < mat->rows; i++){
+        for (j = 0; j < mat->cols; j++){      
+            if (s=read(f,&u,sizeof(float)) == -1){
+            	mat_destroy(mat);
+    			close(f);
+				return NULL;
+			}
+			else
+				ELEM(mat,i,j) = u;	
+			}	     	 
+    	}
 	close(f);
     return mat;
 }
@@ -143,7 +152,6 @@ unsigned int mat_rank(MAT *mat){
     int rank, col, row, i, y, bin, justnull;
     float x;
 
-	mat_print(mat);
     rank = mat->cols;
 	for (row = 0; row < rank; row++){    
     	if (ELEM(mat,row,row) != 0){           
@@ -159,7 +167,7 @@ unsigned int mat_rank(MAT *mat){
         	justnull=0;
     		for (i = row + 1; i < mat->rows;  i++){         
 				if (ELEM(mat, i, row) == 0){
-					int y=i;
+					y=i;
              		for (i = 0; i < rank; i++){
                     	bin = ELEM(mat,row,i); 
                    		ELEM(mat,row,i) = ELEM(mat,y,i); 
@@ -177,7 +185,6 @@ unsigned int mat_rank(MAT *mat){
         	} 
         	row--;
     	} 
-    	mat_print(mat);
     }
 
     return rank;
