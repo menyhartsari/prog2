@@ -45,7 +45,7 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
 }
 
 MAT *mat_create_by_file(char *filename){
-	int f, kus=0, s;
+	int f;
     MAT *mat;
     unsigned int col, row;                      
     int i,j;
@@ -77,13 +77,13 @@ MAT *mat_create_by_file(char *filename){
 	}
 	for (i = 0; i < mat->rows; i++){
         for (j = 0; j < mat->cols; j++){      
-            if (s=read(f,&u,sizeof(float)) == -1){
+            if (read(f,&u,sizeof(float)) == -1){
             	mat_destroy(mat);
     			close(f);
 				return NULL;
 			}
 			else
-				ELEM(mat,i,j) = u;	
+				ELEM(mat,i,j) = u;
 			}	     	 
     	}
 	close(f);
@@ -191,7 +191,7 @@ unsigned int mat_rank(MAT *mat){
 }
 
 int main(){
- 	MAT *A = mat_create_by_file("matrix.txt");
+ 	MAT *A = mat_create_by_file("matrix11.txt");
     MAT *B = mat_create_with_type(3,3);
     unsigned int rank;
 
@@ -208,8 +208,8 @@ int main(){
     rank = mat_rank(A);
  	printf("Hodnost matice A je : %d", rank);
 
-    rank = mat_rank(B);
- 	printf("Hodnost matice B je : %d", rank);
+//    rank = mat_rank(B);
+ //	printf("Hodnost matice B je : %d", rank);
 
   	return 0;
 }
