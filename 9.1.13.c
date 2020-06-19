@@ -91,8 +91,8 @@ MAT *mat_create_by_file(char *filename){
 }
 
 char mat_save(MAT *mat, char *filename){
- 	int f,i,j;
- 	char kod[2]={'M','1'};
+	int f,i,j;
+	char kod[2]={'M','1'};
 
 	if( (f = open(filename, O_BINARY | O_WRONLY | O_CREAT)) < 0 )
 		return -1;
@@ -103,7 +103,7 @@ char mat_save(MAT *mat, char *filename){
 	}
 	write(f,kod,2*sizeof(char));
 	write(f, &mat->rows, sizeof(unsigned int));
-	write(f, &mat->rows, sizeof(unsigned int));
+	write(f, &mat->cols, sizeof(unsigned int));
 	for (i = 0; i < mat->rows; i++){
 		for (j = 0; j < mat->cols; j++)
 			write(f, &ELEM(mat,i,j), sizeof(float));
@@ -149,42 +149,44 @@ void mat_print(MAT *mat){
 }
 
 unsigned int mat_rank(MAT *mat){
-    int rank, col, row, i, y, bin, justnull;
+    int rank, row, i, j, bin, justnull, other_row;
     float x;
 
-    rank = mat->cols;
+    if(mat->cols > mat->rows){
+        rank = mat->rows;
+    } else {
+        rank = mat->cols;
+    }
 	for (row = 0; row < rank; row++){    
     	if (ELEM(mat,row,row) != 0){           
-			for (col = 0; col < mat->rows; col++){ 
-           		if (col != row){
-				   	x = (ELEM(mat,col,row) / ELEM(mat,row,row));
-            		for (i = 0; i < rank; i++) 
-               			ELEM(mat,col,i) -= x * ELEM(mat,row,i); 
+			for (other_row = 0; other_row < mat->rows; other_row++){ 
+           		if (other_row != row){
+					x = (ELEM(mat,other_row,row) / ELEM(mat,row,row));
+            		for (i = 0; i < mat->rows; i++)
+						ELEM(mat,other_row,i) -= x * ELEM(mat,row,i); 
           		} 
-       		} 
+       		}
     	}
 		else{
-        	justnull=0;
+        	justnull=1;
     		for (i = row + 1; i < mat->rows;  i++){         
-				if (ELEM(mat, i, row) == 0){
-					y=i;
-             		for (i = 0; i < rank; i++){
-                    	bin = ELEM(mat,row,i); 
-                   		ELEM(mat,row,i) = ELEM(mat,y,i); 
-                    	ELEM(mat,y,i) = bin; 
+				if (ELEM(mat, i, row) != 0){
+             		for (j = 0; j < rank; j++){
+                    	bin = ELEM(mat,row,j);
+						ELEM(mat,row,j) = ELEM(mat,i,j); 
+                    	ELEM(mat,i,j) = bin; 
                 	}
-                	i=y;
-                	justnull=1;
+                	justnull=0;
                 	break; 
-            	} 
+            	}
         	} 
-    		if (justnull=0){  
+    		if (justnull==1){  
             	rank--; 
             	for (i = 0; i < mat->rows; i ++) 
                 	ELEM(mat,i,row) = ELEM(mat,i,rank);
         	} 
         	row--;
-    	} 
+    	}
     }
 
     return rank;
@@ -206,10 +208,9 @@ int main(){
     ELEM(B,2,2) = 1;
 
     rank = mat_rank(A);
- 	printf("Hodnost matice A je : %d", rank);
+	printf("Hodnost matice A je : %d\n", rank);
 
     rank = mat_rank(B);
- 	printf("Hodnost matice B je : %d", rank);
-
-  	return 0;
+	printf("Hodnost matice B je : %d\n", rank);
+	return 0;
 }
