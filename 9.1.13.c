@@ -171,7 +171,7 @@ void mat_admul_rows(MAT *m, unsigned int i, float mul, unsigned int j)
 
 unsigned int mat_rank(MAT *mat){
     int rank, i, j, k, justnull, row;
-    float x;
+    float x, y;
     
     row = 0;
     for (i = 0; i < mat->cols; i++){
@@ -185,8 +185,9 @@ unsigned int mat_rank(MAT *mat){
     for (i = 0; i < mat->rows; i++){
         for (j = 0; j < mat->cols; j++){
             if (ELEM(mat,i,j) != 0){
+            	y=ELEM(mat,i,j);
                 for (k = 0; k < mat->cols; k++)
-                    ELEM(mat,i,k) = ELEM(mat,i,k)/ELEM(mat,i,j);
+                    ELEM(mat,i,k) = ELEM(mat,i,k)/y;
             	for (k = 0; k < mat->rows; k++){
                     if (k != i && ELEM(mat,k,j) != 0){
                         x = ELEM(mat,k,j);
@@ -250,7 +251,7 @@ int main(){
     rank = mat_rank(C);
 	printf("Hodnost matice C je : %d\n", rank);
 	
-	ELEM(D,0,0) = 1;
+	ELEM(D,0,0) = 0;
     ELEM(D,0,1) = 1;
     ELEM(D,0,2) = 1;
     ELEM(D,1,0) = 1;
